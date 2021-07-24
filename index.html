@@ -1,0 +1,208 @@
+<html>
+  <head>
+    <title>Vue Test - Nusantech</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/@mdi/font@4.x/css/materialdesignicons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css"
+      rel="stylesheet"
+    />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui"
+    />
+  </head>
+  <body>
+    <div id="app">
+      <v-app>
+        <v-main>
+          <v-container fill-height fluid class="indigo">
+            <v-row align="center" justify="center">
+              <v-col>
+                <!-- Card -->
+                <v-card
+                  class="elevation-5 mx-auto rounded-lg pa-10"
+                  max-width="500px"
+                  width="90%"
+                  flat
+                >
+                  <!-- Input -->
+                  <v-row
+                    class="d-flex justify-center align-center"
+                    v-for="(input, index) in inputField"
+                    :key="index"
+                  >
+                    <!-- <v-col cols="12" class="py-2" > -->
+                    <v-text-field
+                      dense
+                      hide-details
+                      solo
+                      flat
+                      outlined
+                      type="number"
+                      :placeholder="'input ' + (index + 1)"
+                      class="rounded-lg"
+                      v-model.number="input.value"
+                    >
+                    </v-text-field>
+                    <v-checkbox
+                      class="pa-2"
+                      :ripple="false"
+                      v-model="inputField[index]['status']"
+                    ></v-checkbox>
+                    <!-- </v-col> -->
+                  </v-row>
+
+                  <!-- Actions Button -->
+                  <v-row class="d-flex justify-space-around">
+                    <v-col
+                      v-for="(action, index) in actionsButton"
+                      :key="index"
+                    >
+                      <v-btn
+                        :color="action.color"
+                        class="rounded-lg"
+                        @click="doCalculate(action.method)"
+                      >
+                        <v-icon> {{ action.icon }} </v-icon>
+                      </v-btn>
+                    </v-col>
+
+                    <v-col cols="12">
+                      <v-divider></v-divider>
+                    </v-col>
+                    <v-col
+                      v-if="errorInfo.status"
+                      cols="12"
+                      class="error--text text--lighten-1"
+                    >
+                      <h4>{{ errorInfo.message }}</h4>
+                    </v-col>
+                    <v-col>
+                      <v-row class="grey--text text--darken-2">
+                        <v-col cols="6">
+                          <h2>Hasil :</h2>
+                        </v-col>
+                        <v-col cols="6" class="d-flex justify-end">
+                          <h2>{{ result }}</h2>
+                        </v-col>
+                      </v-row>
+                    </v-col>
+                  </v-row>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-main>
+      </v-app>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script>
+      new Vue({
+        el: "#app",
+        data() {
+          return {
+            errorInfo: {
+              status: false,
+              message: "",
+            },
+            inputField: [
+              {
+                value: 0,
+                status: false,
+              },
+              {
+                value: 0,
+                status: false,
+              },
+              {
+                value: 0,
+                status: false,
+              },
+            ],
+            result: 0,
+            actionsButton: [
+              {
+                color: "success",
+                method: this.addition_Operation,
+                icon: "mdi-plus",
+              },
+              {
+                color: "error",
+                method: this.subtraction_Operation,
+                icon: "mdi-minus",
+              },
+              {
+                color: "primary",
+                method: this.multiplication_Operation,
+                icon: "mdi-close",
+              },
+              {
+                color: "secondary",
+                method: this.division_Operation,
+                icon: "mdi-division",
+              },
+            ],
+          };
+        },
+        methods: {
+          async doCalculate(mathOperation) {
+            let checked = this.inputChecklist_Validate();
+            let total;
+            if (checked) {
+              total = await mathOperation(checked);
+            }
+            this.result = total;
+          },
+
+          addition_Operation(listInput) {
+            return listInput.reduce(
+              (accumulator, current) => accumulator + current
+            );
+          },
+          multiplication_Operation(listInput) {
+            // return listInput.reduce((prev, { value }) => {
+            //   return prev * value;
+            // }, 1);
+            return listInput.reduce(
+              (accumulator, current) => accumulator * current
+            );
+          },
+          division_Operation(listInput) {
+            return listInput.reduce(
+              (accumulator, current) => accumulator / current
+            );
+          },
+          subtraction_Operation(listInput) {
+            return listInput.reduce(
+              (accumulator, current) => accumulator - current
+            );
+          },
+          inputChecklist_Validate() {
+            const checked = this.inputField
+              .filter((input) => input.status == true)
+              .map(({ value }) => value);
+
+            if (checked.length < 2) {
+              this.errorInfo.status = true;
+              this.errorInfo.message = "Please checklist more input";
+              return false;
+            } else {
+              this.errorInfo.status = false;
+              this.errorInfo.message = "";
+              return checked;
+            }
+          },
+        },
+        vuetify: new Vuetify(),
+      });
+    </script>
+  </body>
+</html>
